@@ -9,10 +9,32 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-//TODO
+
 public class ExperimentParser {
     public void parse(String filePath){
-        List<Double> timeArray = new ArrayList<>(), xrkArray = new ArrayList<>(); // добавить саммивы под другие переменные
+        List<Double> timeArray = new ArrayList<>(), xrKArray = new ArrayList<>(),
+                xrTArray = new ArrayList<>(), rddrArray = new ArrayList<>(),
+                aShGArray = new ArrayList<>(), ShNVArray = new ArrayList<>(),
+                HaArray = new ArrayList<>(), VArray = new ArrayList<>(),
+                VprArray = new ArrayList<>(), VyArray = new ArrayList<>(),
+                kurArray = new ArrayList<>(), gamArray = new ArrayList<>(),
+                tngVArray = new ArrayList<>(), psiArray = new ArrayList<>(),
+                tetArray = new ArrayList<>(), alfArray = new ArrayList<>(),
+                betArray = new ArrayList<>(), snosArray = new ArrayList<>(),
+                wxArray = new ArrayList<>(), wyVArray = new ArrayList<>(),
+                wz1Array = new ArrayList<>(), ax1VArray = new ArrayList<>(),
+                ay1Array = new ArrayList<>(), az1Array = new ArrayList<>(),
+                PstArray = new ArrayList<>(), qArray = new ArrayList<>(),
+                GpArray = new ArrayList<>(), TnvArray = new ArrayList<>(),
+                figArray = new ArrayList<>(), lagArray = new ArrayList<>();//DONE: Добавлены все основные параметры полета -31 шт
+
+        // (iSOK), Time_SPNM, xrK, xrT, rddr, aShG,
+        // ShNV, Ha, V, Vpr, Vy,
+        // kur, gam, tng, psi, tet,
+        // alf, bet, snos, wx, wy,
+        // wz, ax1, ay1, az1, Pst,
+        // q, Gp, Tnv, Trv, fig,
+        // lag, (SO), (HH:MM:SS:MS)
 
         BufferedReader reader;
         try {
@@ -21,7 +43,7 @@ public class ExperimentParser {
 
             while (line != null) {
                 if (line.equals(">>>>>>>>>>")) {   //закончили сохранение
-                    //block = new block
+                    //block = new block;
                     //block.setArray(timeArray)
                     //обнуляем timeArray...
                     break; //убрать и заменить на сохранение в базу
@@ -35,10 +57,10 @@ public class ExperimentParser {
 
                         if (tickArray[0].equals(1.0)) {
                             timeArray.add(0.0);
-                            xrkArray.add(tickArray[2]);
+                            xrKArray.add(tickArray[2]);
                         } else {
                             timeArray.add(round(timeArray.get(timeArray.size() - 1) + 0.02, 2));
-                            xrkArray.add(tickArray[2]);
+                            xrKArray.add(tickArray[2]);
                         }
 
                     } catch (Exception e) {
@@ -55,7 +77,7 @@ public class ExperimentParser {
         }
 
         for (int i = 0; i < timeArray.size(); i++) {
-            System.out.println(timeArray.get(i) + "      " + xrkArray.get(i));
+            System.out.println(timeArray.get(i) + "      " + xrKArray.get(i));
         }
     }
 
