@@ -15,37 +15,38 @@ import java.util.stream.StreamSupport;
 public class ExperimentParser {
     public void parse(String filePath){
 
-        Map<String, List<Double>> paramsMap = new LinkedHashMap<>();
-        List<Block> blocksArray = new ArrayList<>();
-        double firstTime = 0;
+        Map<String, List<Double>> paramsMap = new LinkedHashMap<>(); //создание HashMap для хранения наших параметров
+        List<Block> blocksArray = new ArrayList<>(); //создание List массива для хранения значений парметров полета
+        double firstTime = 0; //начальная точка времени
 
-        BufferedReader reader;
+        BufferedReader reader; //чтение .txt файла
         try {
-            reader = new BufferedReader(new FileReader(filePath));
-            String line = reader.readLine();
+            reader = new BufferedReader(new FileReader(filePath)); //передаем наш файл в BufferedReader
+            String line = reader.readLine(); //записали в строку все параметры полета
 
             while (line != null) {
-                if (line.equals(">>>>>>>>>>")) {   //закончили сохранение
-                    Block block = new Block();
+                if (line.equals(">>>>>>>>>>")) {   //закончили сохранение(окончание блока эксперимента)
+                    Block block = new Block(); //создаем новый объект класса блок
 
-                    // TODO: навести красоту, присобачить round()
-                    final double firstTimeConst = firstTime;
-                    List<Double> times = paramsMap.get("Time_SPNM");
-                    times = times.stream().map(elem -> elem - firstTimeConst).collect(Collectors.toList());//round
-                    //paramsMap.replace("Time_SPNM", times);
+                    final double firstTimeConst = firstTime; //константа 0ого времени
+                    List<Double> times = paramsMap.get("Time_SPNM"); // записываем в массив times наш параметр Time_
+                    times = times.stream().map(elem -> {
+                      return round(elem - firstTimeConst, 2 );
+                    }).collect(Collectors.toList());//round
+
+                    paramsMap.replace("Time_SPNM", times);
 
                     block.setParamsMap(new LinkedHashMap<>(paramsMap));
 
+                    //какой-то вывод
 //                    for (val entrySet : paramsMap.entrySet()) {
 //                        System.out.println(entrySet.getKey() + "  " + entrySet.getValue());
 //                    }
-
 
                     paramsMap.clear();
                     blocksArray.add(block);
                 } else {
                     try {
-
                         Stream<String> stringStream = Arrays.stream(line.trim().split("\\s+"));
                         stringStream = skipLastElements(stringStream, 1);
                         String[] columnArray = stringStream
@@ -64,9 +65,13 @@ public class ExperimentParser {
                                 .map(Double::parseDouble)
                                 .toArray(Double[]::new);
 
-                        //TODO: доработать обнуление времени(приведение времени к нулю
                         if (tickArray[0].equals(1.0)) {
                             firstTime = tickArray[1];
+                            int i = 1;
+                            for (val entrySet : paramsMap.entrySet()) {
+                                entrySet.getValue().add(tickArray[i]);
+                                i++;
+                            }
 //                            timeArray.add(0.0);
 //                            xrKArray.add(tickArray[2]);
                         } else {
@@ -92,17 +97,20 @@ public class ExperimentParser {
             e.printStackTrace();
         }
 
-//        for (Block block : blocksArray) {
-//            System.out.println(block);
-//        }
-        for (val entrySet : blocksArray.get(2).getParamsMap().entrySet()) {
+        for (Block block : blocksArray) {
+            System.out.println(block);
+        }
+//
+        for (val entrySet : blocksArray.get(0).getParamsMap().entrySet()) {
             System.out.println(entrySet.getKey() + "  " + entrySet.getValue());
         }
+        blocksArray.get(0).getParamsMap().get("Time_SPNM").forEach(System.out::println);
+//        System.out.println(blocksArray.get(0).getParamsMap().get("Time_SPNM").get(0));
 
     }
 
 
-
+//Пропуск последнего параметра полета(HH:MM:SS:MS)
 
     static <T> Stream<T> skipLastElements(Stream<T> s, int count) {
         if(count<=0) {
@@ -134,7 +142,6 @@ public class ExperimentParser {
 
     public static double round(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();
-
         long factor = (long) Math.pow(10, places);
         value = value * factor;
         long tmp = Math.round(value);
