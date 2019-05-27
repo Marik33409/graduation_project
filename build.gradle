@@ -1,2 +1,22 @@
 group 'ru.bmstu'
 version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.6'
+    annotationProcessor 'org.projectlombok:lombok:1.18.6'
+    
+    implementation("org.openjfx:javafx-fxml:11:mac")
+    implementation("org.openjfx:javafx-web:11:mac")
+    implementation("org.openjfx:javafx-media:11:mac")
+    implementation("org.openjfx:javafx-swing:11:mac")
+    implementation("org.openjfx:javafx-base:11:mac")
+    implementation("org.openjfx:javafx-graphics:11:mac")
+    implementation("org.openjfx:javafx-controls:11:mac")
+}
