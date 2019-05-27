@@ -1,5 +1,6 @@
 package ru.bmstu.processing.parsing;
 
+import lombok.val;
 import ru.bmstu.processing.models.Block;
 
 import java.io.BufferedReader;
@@ -7,60 +8,80 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class ExperimentParser {
     public void parse(String filePath){
-        List<Double> timeArray = new ArrayList<>(), xrKArray = new ArrayList<>(),
-                xrTArray = new ArrayList<>(), rddrArray = new ArrayList<>(),
-                aShGArray = new ArrayList<>(), ShNVArray = new ArrayList<>(),
-                HaArray = new ArrayList<>(), VArray = new ArrayList<>(),
-                VprArray = new ArrayList<>(), VyArray = new ArrayList<>(),
-                kurArray = new ArrayList<>(), gamArray = new ArrayList<>(),
-                tngVArray = new ArrayList<>(), psiArray = new ArrayList<>(),
-                tetArray = new ArrayList<>(), alfArray = new ArrayList<>(),
-                betArray = new ArrayList<>(), snosArray = new ArrayList<>(),
-                wxArray = new ArrayList<>(), wyVArray = new ArrayList<>(),
-                wz1Array = new ArrayList<>(), ax1VArray = new ArrayList<>(),
-                ay1Array = new ArrayList<>(), az1Array = new ArrayList<>(),
-                PstArray = new ArrayList<>(), qArray = new ArrayList<>(),
-                GpArray = new ArrayList<>(), TnvArray = new ArrayList<>(),
-                figArray = new ArrayList<>(), lagArray = new ArrayList<>();//DONE: Добавлены все основные параметры полета -31 шт
 
-        // (iSOK), Time_SPNM, xrK, xrT, rddr, aShG,
-        // ShNV, Ha, V, Vpr, Vy,
-        // kur, gam, tng, psi, tet,
-        // alf, bet, snos, wx, wy,
-        // wz, ax1, ay1, az1, Pst,
-        // q, Gp, Tnv, Trv, fig,
-        // lag, (SO), (HH:MM:SS:MS)
+        Map<String, List<Double>> paramsMap = new LinkedHashMap<>(); //создание HashMap для хранения наших параметров
+        List<Block> blocksArray = new ArrayList<>(); //создание List массива для хранения значений парметров полета
+        double firstTime = 0; //начальная точка времени
 
-        BufferedReader reader;
+        BufferedReader reader; //чтение .txt файла
         try {
-            reader = new BufferedReader(new FileReader(filePath));
-            String line = reader.readLine();
+            reader = new BufferedReader(new FileReader(filePath)); //передаем наш файл в BufferedReader
+            String line = reader.readLine(); //записали в строку все параметры полета
 
             while (line != null) {
-                if (line.equals(">>>>>>>>>>")) {   //закончили сохранение
-                    //block = new block;
-                    //block.setArray(timeArray)
-                    //обнуляем timeArray...
-                    break; //убрать и заменить на сохранение в базу
+                if (line.equals(">>>>>>>>>>")) {   //закончили сохранение(окончание блока эксперимента)
+                    Block block = new Block(); //создаем новый объект класса блок
+
+                    final double firstTimeConst = firstTime; //константа 0ого времени
+                    List<Double> times = paramsMap.get("Time_SPNM"); // записываем в массив times наш параметр Time_
+                    times = times.stream().map(elem -> {
+                      return round(elem - firstTimeConst, 2 );
+                    }).collect(Collectors.toList());//round
+
+                    paramsMap.replace("Time_SPNM", times);
+
+                    block.setParamsMap(new LinkedHashMap<>(paramsMap));
+
+                    //какой-то вывод
+//                    for (val entrySet : paramsMap.entrySet()) {
+//                        System.out.println(entrySet.getKey() + "  " + entrySet.getValue());
+//                    }
+
+                    paramsMap.clear();
+                    blocksArray.add(block);
                 } else {
                     try {
                         Stream<String> stringStream = Arrays.stream(line.trim().split("\\s+"));
                         stringStream = skipLastElements(stringStream, 1);
-                        Double[] tickArray = stringStream
+                        String[] columnArray = stringStream
+                                .toArray(String[]::new);
+                        if (columnArray[1].equals("Time_SPNM")){
+                            for (int i = 1; i < columnArray.length-1; i++) {
+                                paramsMap.put(columnArray[i], new ArrayList<>());
+                            }
+                        }
+
+
+                        // TODO: оптимизировать
+                        Stream<String> valuesStream = Arrays.stream(line.trim().split("\\s+"));
+                        valuesStream = skipLastElements(valuesStream, 1);
+                        Double[] tickArray = valuesStream
                                 .map(Double::parseDouble)
                                 .toArray(Double[]::new);
 
                         if (tickArray[0].equals(1.0)) {
-                            timeArray.add(0.0);
-                            xrKArray.add(tickArray[2]);
+                            firstTime = tickArray[1];
+                            int i = 1;
+                            for (val entrySet : paramsMap.entrySet()) {
+                                entrySet.getValue().add(tickArray[i]);
+                                i++;
+                            }
+//                            timeArray.add(0.0);
+//                            xrKArray.add(tickArray[2]);
                         } else {
-                            timeArray.add(round(timeArray.get(timeArray.size() - 1) + 0.02, 2));
-                            xrKArray.add(tickArray[2]);
+                            int i = 1;
+                            for (val entrySet : paramsMap.entrySet()) {
+                                entrySet.getValue().add(tickArray[i]);
+                                i++;
+                            }
+//                            timeArray.add(round(timeArray.get(timeArray.size() - 1) + 0.02, 2));
+//                            xrKArray.add(tickArray[2]);
                         }
 
                     } catch (Exception e) {
@@ -76,13 +97,20 @@ public class ExperimentParser {
             e.printStackTrace();
         }
 
-        for (int i = 0; i < timeArray.size(); i++) {
-            System.out.println(timeArray.get(i) + "      " + xrKArray.get(i));
+        for (Block block : blocksArray) {
+            System.out.println(block);
         }
+//
+        for (val entrySet : blocksArray.get(0).getParamsMap().entrySet()) {
+            System.out.println(entrySet.getKey() + "  " + entrySet.getValue());
+        }
+        blocksArray.get(0).getParamsMap().get("Time_SPNM").forEach(System.out::println);
+//        System.out.println(blocksArray.get(0).getParamsMap().get("Time_SPNM").get(0));
+
     }
 
 
-
+//Пропуск последнего параметра полета(HH:MM:SS:MS)
 
     static <T> Stream<T> skipLastElements(Stream<T> s, int count) {
         if(count<=0) {
@@ -114,22 +142,9 @@ public class ExperimentParser {
 
     public static double round(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();
-
         long factor = (long) Math.pow(10, places);
         value = value * factor;
         long tmp = Math.round(value);
         return (double) tmp / factor;
     }
-
-    public static void main(String[] args) {
-        skipLastElements(Stream.of("foo", "bar", "baz", "hello", "world"), 2)
-                .forEach(System.out::println);
-    }
-
-//    public static void main(String[] args) {
-//        String test = "adgsfgdf rteerre      bmnmbm   ui t    ggygymng";
-//        for (String substring : test.split("\\s+")) {
-//            System.out.println(substring);
-//        }
-//    }
 }

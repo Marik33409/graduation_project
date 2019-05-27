@@ -9,3 +9,5 @@ public class  Application {
         experimentParser.parse("/Users/ruabymg/IdeaProjects/graduation_project/src/main/resources/Experiment.txt");
     }
 }
+
+//TODO: подключить базу, научиться сохранять в нее HashMap
