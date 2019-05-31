@@ -1,9 +1,19 @@
 package ru.bmstu.processing.interfaces;
+
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * User: Mark Bryzgalov
@@ -12,14 +22,17 @@ import javafx.stage.Stage;
 
 public class MainForm extends Application {
     @Override
-    public void start(Stage stage) throws Exception{
-            Scene scene = new Scene(new StackPane(), 800, 800);
-            stage.setScene(scene);
-            stage.show();
-        }
+    public void start(Stage primaryStage) throws Exception {
+        //        URL url = getClass().getResource("/MainForm.fxml");
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("../../../../../resources/MainForm.fxml"));
+        Parent root = loader.load();
+        MainController controller = loader.getController();
 
-        public static void main(String[] args) {
-            launch();
-        }
+        primaryStage.setTitle("AviaAnalysis");
+        primaryStage.setScene(new Scene(root, 600, 400));
+        primaryStage.show();
+        controller.setStage(primaryStage);
 
     }
+    public static void main(String[] args) { launch(); }
+}
