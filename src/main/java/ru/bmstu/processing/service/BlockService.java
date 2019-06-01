@@ -1,7 +1,9 @@
 package ru.bmstu.processing.service;
 
 
+import lombok.val;
 import ru.bmstu.processing.entity.Block;
+import ru.bmstu.processing.entity.MyMap;
 import ru.bmstu.processing.repository.implementation.BlockRepositoryImplementation;
 
 import java.util.*;
@@ -13,17 +15,36 @@ public class BlockService {
         BlockRepository = new BlockRepositoryImplementation();
     }
 
-    public void create(Block Block) {
+    public void create(ru.bmstu.processing.models.Block inputBlock) {
+        Block block = new Block();
+        block.setDescription(inputBlock.getDescription());
+        block.setExperiment_id(inputBlock.getExperimentId());
+        Map<String, List<Double>> tmp = inputBlock.getParamsMap();
+
+        Set<MyMap> mySetMap = new HashSet<>();
+        for (val entry : tmp.entrySet()) {
+            MyMap myMap = new MyMap();
+            myMap.setKey(entry.getKey());
+
+            List<Double> list = entry.getValue();
+            myMap.setValue(list.toArray(new Double[0]));
+
+            mySetMap.add(myMap);
+        }
+
+        block.setParamsMyMap(mySetMap);
+
         BlockRepository.openCurrentSessionwithTransaction();
-        BlockRepository.saveBlock(Block);
+        BlockRepository.saveBlock(block);
         BlockRepository.closeCurrentSessionwithTransaction();
     }
 
-    public void update(Block Block) {
-        BlockRepository.openCurrentSessionwithTransaction();
-        BlockRepository.updateBlock(Block);
-        BlockRepository.closeCurrentSessionwithTransaction();
-    }
+
+//    public void update(ru.bmstu.processing.models.Block Block) {
+//        BlockRepository.openCurrentSessionwithTransaction();
+//        BlockRepository.updateBlock(Block);
+//        BlockRepository.closeCurrentSessionwithTransaction();
+//    }
 
     public Block findById(Integer id) {
         BlockRepository.openCurrentSession();
@@ -40,13 +61,13 @@ public class BlockService {
     }
 
     public static void main(String[] args) {
-        Block block = new Block();
+        ru.bmstu.processing.models.Block block = new ru.bmstu.processing.models.Block();
         block.setDescription("testBlock");
-        block.setExperiment_id(100000);
+        block.setExperimentId(100000);
         Map<String, List<Double>> map = new HashMap<>();
-        map.put("test1", Arrays.asList(12.0,13.0,14.0));
-        map.put("test2", Arrays.asList(15.0,16.0,17.0));
-//        block.setMyMap(map);
+        map.put("test1", Arrays.asList(12.0, 13.0, 14.0));
+        map.put("test2", Arrays.asList(15.0, 16.0, 17.0));
+        block.setParamsMap(map);
 
         BlockService blockService = new BlockService();
         blockService.create(block);

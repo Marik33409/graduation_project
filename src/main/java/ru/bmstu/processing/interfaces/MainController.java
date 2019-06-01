@@ -28,6 +28,5 @@ public class MainController {
         } catch (Exception ex) {
             common.ShowMessage(ex.getMessage());
         }
-
     }
 }

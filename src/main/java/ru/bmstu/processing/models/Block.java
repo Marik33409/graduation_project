@@ -8,7 +8,7 @@ import java.util.Map;
 @Data
 public class Block {
     private long id;
-    private long fileId;
+    private int experimentId;
     private String description;
     private Map<String, List<Double>> paramsMap;
 }

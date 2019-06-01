@@ -10,6 +10,6 @@
     <property name="show_sql">true</property>
     <mapping class="ru.bmstu.processing.entity.Experiment"/>
     <mapping class="ru.bmstu.processing.entity.Block"/>
-    <mapping class="ru.bmstu.processing.entity.Map"/>
+    <mapping class="ru.bmstu.processing.entity.MyMap"/>
   </session-factory>
 </hibernate-configuration>

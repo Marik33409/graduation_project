@@ -39,7 +39,7 @@ public class ExperimentParser {
                     block.setParamsMap(new LinkedHashMap<>(paramsMap));
 
                     //какой-то вывод
-//                    for (val entrySet : paramsMap.entrySet()) {
+//                    for (val entrySet : paramsMyMap.entrySet()) {
 //                        System.out.println(entrySet.getKey() + "  " + entrySet.getValue());
 //                    }
 
@@ -103,8 +103,8 @@ public class ExperimentParser {
         for (val entrySet : blocksArray.get(0).getParamsMap().entrySet()) {
             System.out.println(entrySet.getKey() + "  " + entrySet.getValue());
         }
-//        blocksArray.get(0).getParamsMap().get("Time_SPNM").forEach(System.out::println); //вывод столбца времени
-//        System.out.println(blocksArray.get(0).getParamsMap().get("Time_SPNM").get(0));
+//        blocksArray.get(0).getParamsMyMap().get("Time_SPNM").forEach(System.out::println); //вывод столбца времени
+//        System.out.println(blocksArray.get(0).getParamsMyMap().get("Time_SPNM").get(0));
     }
 
     public static double round(double value, int places) {
