@@ -39,7 +39,7 @@ public class ExperimentParser {
                     block.setParamsMap(new LinkedHashMap<>(paramsMap));
 
                     //какой-то вывод
-//                    for (val entrySet : paramsMap.entrySet()) {
+//                    for (val entrySet : paramsMyMap.entrySet()) {
 //                        System.out.println(entrySet.getKey() + "  " + entrySet.getValue());
 //                    }
 
@@ -48,7 +48,7 @@ public class ExperimentParser {
                 } else {
                     try {
                         Stream<String> stringStream = Arrays.stream(line.trim().split("\\s+"));
-                        stringStream = skipLastElements(stringStream, 1);
+//                        stringStream = skipLastElements(stringStream, 1);
                         String[] columnArray = stringStream
                                 .toArray(String[]::new);
                         if (columnArray[1].equals("Time_SPNM")){
@@ -60,7 +60,7 @@ public class ExperimentParser {
 
                         // TODO: оптимизировать
                         Stream<String> valuesStream = Arrays.stream(line.trim().split("\\s+"));
-                        valuesStream = skipLastElements(valuesStream, 1);
+//                        valuesStream = skipLastElements(valuesStream, 1); //пропуск последнего столбца
                         Double[] tickArray = valuesStream
                                 .map(Double::parseDouble)
                                 .toArray(Double[]::new);
@@ -100,44 +100,11 @@ public class ExperimentParser {
         for (Block block : blocksArray) {
             System.out.println(block);
         }
-//
         for (val entrySet : blocksArray.get(0).getParamsMap().entrySet()) {
             System.out.println(entrySet.getKey() + "  " + entrySet.getValue());
         }
-        blocksArray.get(0).getParamsMap().get("Time_SPNM").forEach(System.out::println);
-//        System.out.println(blocksArray.get(0).getParamsMap().get("Time_SPNM").get(0));
-
-    }
-
-
-//Пропуск последнего параметра полета(HH:MM:SS:MS)
-
-    static <T> Stream<T> skipLastElements(Stream<T> s, int count) {
-        if(count<=0) {
-            if(count==0) return s;
-            throw new IllegalArgumentException(count+" < 0");
-        }
-        ArrayDeque<T> pending=new ArrayDeque<T>(count+1);
-        Spliterator<T> src=s.spliterator();
-        return StreamSupport.stream(new Spliterator<T>() {
-            public boolean tryAdvance(Consumer<? super T> action) {
-                while(pending.size()<=count && src.tryAdvance(pending::add));
-                if(pending.size()>count) {
-                    action.accept(pending.remove());
-                    return true;
-                }
-                return false;
-            }
-            public Spliterator<T> trySplit() {
-                return null;
-            }
-            public long estimateSize() {
-                return src.estimateSize()-count;
-            }
-            public int characteristics() {
-                return src.characteristics();
-            }
-        }, false);
+//        blocksArray.get(0).getParamsMyMap().get("Time_SPNM").forEach(System.out::println); //вывод столбца времени
+//        System.out.println(blocksArray.get(0).getParamsMyMap().get("Time_SPNM").get(0));
     }
 
     public static double round(double value, int places) {
@@ -147,4 +114,36 @@ public class ExperimentParser {
         long tmp = Math.round(value);
         return (double) tmp / factor;
     }
+
+//Пропуск последнего параметра полета(HH:MM:SS:MS)
+
+//    static <T> Stream<T> skipLastElements(Stream<T> s, int count) {
+//        if(count<=0) {
+//            if(count==0) return s;
+//            throw new IllegalArgumentException(count+" < 0");
+//        }
+//        ArrayDeque<T> pending=new ArrayDeque<T>(count+1);
+//        Spliterator<T> src=s.spliterator();
+//        return StreamSupport.stream(new Spliterator<T>() {
+//            public boolean tryAdvance(Consumer<? super T> action) {
+//                while(pending.size()<=count && src.tryAdvance(pending::add));
+//                if(pending.size()>count) {
+//                    action.accept(pending.remove());
+//                    return true;
+//                }
+//                return false;
+//            }
+//            public Spliterator<T> trySplit() {
+//                return null;
+//            }
+//            public long estimateSize() {
+//                return src.estimateSize()-count;
+//            }
+//            public int characteristics() {
+//                return src.characteristics();
+//            }
+//        }, false);
+//    }
+
+
 }
